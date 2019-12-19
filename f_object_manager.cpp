@@ -43,7 +43,7 @@ void f_object_manager::destroy_run()
 
 bool f_object_manager::proc()
 {
-  double * Renu;
+  double Renu[9];
   double x, y, z;
   float r, p;
   float vox, voy;
