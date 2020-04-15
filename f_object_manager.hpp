@@ -19,6 +19,8 @@
 #include "filter_base.hpp"
 #include "ch_state.hpp"
 #include "ch_obj.hpp"
+#include "ch_nmea.hpp"
+
 
 // Description:
 // The filter manages the objects, and shares objects between hosts efficiently.
@@ -28,7 +30,9 @@ class f_object_manager: public f_base
 protected:
   ch_state * m_state;
   ch_ais_obj * m_ais_obj;
-
+  ch_nmea_data * m_nmea_data;
+  unsigned char nmea_data_buffer[256];
+  
   long long m_dtold;
   float m_range;
 
