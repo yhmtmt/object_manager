@@ -61,7 +61,7 @@ bool f_object_manager::proc()
   
   if(m_ais_obj){
   if(m_nmea_data){
-    size_t len;
+    unsigned int len;
     m_nmea_data->pop(nmea_data_buffer, len);
     if(len != 0){
       auto data =  NMEA0183::GetData(m_nmea_data);
