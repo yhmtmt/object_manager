@@ -60,55 +60,61 @@ bool f_object_manager::proc()
 
   
   if(m_ais_obj){
-  if(m_nmea_data){
-    unsigned int len;
-    m_nmea_data->pop(nmea_data_buffer, len);
-    if(len != 0){
-      auto data =  NMEA0183::GetData(m_nmea_data);
-      long long t = data->t();
-      const NMEA0183::VDM * vdm = data->payload_as_VDM();
-      if(vdm && !vdm->isVDO()){
-	switch(vdm->payload_type()){
-	case NMEA0183::VDMPayload_PositionReportClassA:{
-	  const NMEA0183::PositionReportClassA * pl = 
-	    vdm->payload_as_PositionReportClassA();
-	  m_ais_obj->push(t, pl->mmsi(),
-			  (double) pl->latitude() * (1.0 / (60.0 * 10000.0)),
-			  (double) pl->longitude() * (1.0 / (60.0 * 10000.0)),
-			  (float)((double) pl->course() * (1.0 / 10.0)),
-			  (float)((double) pl->speed() * (1.0 / 10.0)),
-			  (float)(pl->heading()));
-	}	  
-	case NMEA0183::VDMPayload_StandardClassBCSPositionReport:{
-	  const NMEA0183::StandardClassBCSPositionReport * pl =
-	    vdm->payload_as_StandardClassBCSPositionReport();
-	  m_ais_obj->push(t, pl->mmsi(),
-			  (double) pl->latitude() * (1.0 / (60.0 * 10000.0)),
-			  (double) pl->longitude() * (1.0 / (60.0 * 10000.0)),
-			  (float)((double) pl->course() * (1.0 / 10.0)),
-			  (float)((double) pl->speed() * (1.0 / 10.0)),
-			  (float)(pl->heading()));
-	}
-	case NMEA0183::VDMPayload_ExtendedClassBCSPositionReport:{
-	}
-	  const NMEA0183::ExtendedClassBCSPositionReport * pl =
-	    vdm->payload_as_ExtendedClassBCSPositionReport();
-	  m_ais_obj->push(t, pl->mmsi(),
-			  (double) pl->latitude() * (1.0 / (60.0 * 10000.0)),
-			  (double) pl->longitude() * (1.0 / (60.0 * 10000.0)),
-			  (float)((double) pl->course() * (1.0 / 10.0)),
-			  (float)((double) pl->speed() * (1.0 / 10.0)),
-			  (float)(pl->heading()));	  
+    if(m_nmea_data){
+      unsigned int len;
+      m_nmea_data->pop(nmea_data_buffer, len);
+      if(len != 0){
+	auto data =  NMEA0183::GetData(nmea_data_buffer);
+	long long t = data->t();
+	const NMEA0183::VDM * vdm = data->payload_as_VDM();
+	if(vdm && !vdm->isVDO()){
+	  switch(vdm->payload_type()){
+	  case NMEA0183::VDMPayload_PositionReportClassA:{
+	    const NMEA0183::PositionReportClassA * pl = 
+	      vdm->payload_as_PositionReportClassA();
+	    m_ais_obj->push(t, pl->mmsi(),
+			    (double) pl->latitude() * (1.0 / (60.0 * 10000.0)),
+			    (double) pl->longitude() * (1.0 / (60.0 * 10000.0)),
+			    (float)((double) pl->course() * (1.0 / 10.0)),
+			    (float)((double) pl->speed() * (1.0 / 10.0)),
+			    (float)(pl->heading()));
+	  }
+	    break;
+	  case NMEA0183::VDMPayload_StandardClassBCSPositionReport:{
+	    const NMEA0183::StandardClassBCSPositionReport * pl =
+	      vdm->payload_as_StandardClassBCSPositionReport();
+	    m_ais_obj->push(t, pl->mmsi(),
+			    (double) pl->latitude() * (1.0 / (60.0 * 10000.0)),
+			    (double) pl->longitude() * (1.0 / (60.0 * 10000.0)),
+			    (float)((double) pl->course() * (1.0 / 10.0)),
+			    (float)((double) pl->speed() * (1.0 / 10.0)),
+			    (float)(pl->heading()));
+	  }
+	    break;
+	  case NMEA0183::VDMPayload_ExtendedClassBCSPositionReport:{
+	    const NMEA0183::ExtendedClassBCSPositionReport * pl =
+	      vdm->payload_as_ExtendedClassBCSPositionReport();
+	    m_ais_obj->push(t, pl->mmsi(),
+			    (double) pl->latitude() * (1.0 / (60.0 * 10000.0)),
+			    (double) pl->longitude() * (1.0 / (60.0 * 10000.0)),
+			    (float)((double) pl->course() * (1.0 / 10.0)),
+			    (float)((double) pl->speed() * (1.0 / 10.0)),
+			    (float)(pl->heading()));	  
+	  
+	  }
+	    break;
+	  default:
+	    break;
+	  }
 	}
       }
     }
-  }
-    
+  
     // update enu coordinate
     m_ais_obj->update_rel_pos_and_vel(Renu, x, y, z);
     m_ais_obj->remove_old(get_time() - m_dtold);
     m_ais_obj->remove_out(m_range);
-    
+  
     m_ais_obj->reset_updates();
     m_ais_obj->calc_tdcpa(t, vox, voy);
   }
